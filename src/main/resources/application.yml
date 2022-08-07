@@ -1,0 +1,55 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: staff-service
+          uri: lb://staff-service
+          #          via service name
+          predicates:
+            - Path=/staff-management/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: staff-service
+#                fallbackuri: /forward:/staffServiceFallback
+
+
+        - id: project-service
+          uri: lb://project-service
+          predicates:
+            - Path=/project-management/**
+#          filters:
+#            - name: CircuitBreaker
+#              args:
+#                name: project-service
+#                fallbackuri: /forward:/projectServiceFallback
+#hystrix:
+#  command:
+#    fallbackcmd:
+#      excution:
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 4000
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${HOST_NAME:localhost}:8761/eureka/
+  instance:
+    hostname: ${HOST_NAME:localhost}
+    prefer-ip-address: true
